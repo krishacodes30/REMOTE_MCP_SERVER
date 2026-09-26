@@ -17,23 +17,40 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
 
-if not TURSO_DATABASE_URL:
-    raise RuntimeError("TURSO_DATABASE_URL is not set")
-
-if not TURSO_AUTH_TOKEN:
-    raise RuntimeError("TURSO_AUTH_TOKEN is not set")
-
-
 CATEGORIES_PATH = os.path.join(BASE_DIR, "categories.json")
 
 mcp = FastMCP("ExpenseTracker")
 
 
 def get_db():
-    return libsql.connect(
-        database=TURSO_DATABASE_URL,
-        auth_token=TURSO_AUTH_TOKEN
+    database_url = os.getenv("TURSO_DATABASE_URL")
+    auth_token = os.getenv("TURSO_AUTH_TOKEN")
+
+    if not database_url:
+        raise RuntimeError("TURSO_DATABASE_URL is not set")
+
+    if not auth_token:
+        raise RuntimeError("TURSO_AUTH_TOKEN is not set")
+
+    conn = libsql.connect(
+        database=database_url,
+        auth_token=auth_token
     )
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS expenses(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            amount REAL NOT NULL,
+            category TEXT NOT NULL,
+            subcategory TEXT DEFAULT '',
+            note TEXT DEFAULT ''
+        )
+    """)
+
+    conn.commit()
+
+    return conn
 
 
 # ============================================================
