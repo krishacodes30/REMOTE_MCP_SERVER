@@ -1,35 +1,4 @@
 
-## Setup
-
-**1. Install deps**
-```bash
-uv sync
-# or: pip install -e .
-```
-
-**2. Set up a Turso database**
-```bash
-turso db create expense-tracker
-turso db show expense-tracker --url
-turso db tokens create expense-tracker
-```
-
-**3. Configure environment**
-
-Create a `.env` file in the project root:
-```env
-TURSO_DATABASE_URL=libsql://<your-db>.turso.io
-TURSO_AUTH_TOKEN=<your-auth-token>
-```
-
-**4. Run the server**
-```bash
-fastmcp run
-# or directly:
-python main.py
-```
-
-Server starts on `http://0.0.0.0:8000` (HTTP transport).
 
 ## Connect to Claude
 
@@ -66,6 +35,40 @@ Server URL: **https://sparkling-amber-spoonbill.fastmcp.app/mcp**
 Categories and subcategories live in `categories.json` — edit that file to add/rename categories; no code changes or restart needed. Current top-level categories:
 
 `food`, `transport`, `housing`, `utilities`, `health`, `education`, `family_kids`, `entertainment`, `shopping`, `subscriptions`, `personal_care`, `gifts_donations`, `finance_fees`, `business`, `travel`, `home`, `pet`, `taxes`, `investments`, `misc`
+
+
+
+## Setup
+
+**1. Install deps**
+```bash
+uv sync
+# or: pip install -e .
+```
+
+**2. Set up a Turso database**
+```bash
+turso db create expense-tracker
+turso db show expense-tracker --url
+turso db tokens create expense-tracker
+```
+
+**3. Configure environment**
+
+Create a `.env` file in the project root:
+```env
+TURSO_DATABASE_URL=libsql://<your-db>.turso.io
+TURSO_AUTH_TOKEN=<your-auth-token>
+```
+
+**4. Run the server**
+```bash
+fastmcp run
+# or directly:
+python main.py
+```
+
+Server starts on `http://0.0.0.0:8000` (HTTP transport).
 
 ## Notes
 
