@@ -3,18 +3,37 @@ import os
 import sqlite3
 import json
 from typing import Optional
-
-
+from dotenv import load_dotenv
+import libsql
 # ============================================================
 # CONFIG
 # ============================================================
 
+load_dotenv()
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = os.path.join(BASE_DIR, "expenses.db")
+
+TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL")
+TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
+
+if not TURSO_DATABASE_URL:
+    raise RuntimeError("TURSO_DATABASE_URL is not set")
+
+if not TURSO_AUTH_TOKEN:
+    raise RuntimeError("TURSO_AUTH_TOKEN is not set")
+
+
 CATEGORIES_PATH = os.path.join(BASE_DIR, "categories.json")
 
 mcp = FastMCP("ExpenseTracker")
+
+
+def get_db():
+    return libsql.connect(
+        database=TURSO_DATABASE_URL,
+        auth_token=TURSO_AUTH_TOKEN
+    )
 
 
 # ============================================================
@@ -24,7 +43,7 @@ mcp = FastMCP("ExpenseTracker")
 def init_db():
     """Create the expenses table if it doesn't already exist."""
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS expenses(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,7 +139,7 @@ def add_expense(
     category = category.strip().lower()
     subcategory = subcategory.strip().lower()
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             """
@@ -207,7 +226,7 @@ def update_expense(
 
     if category is not None or subcategory is not None:
 
-        with sqlite3.connect(DB_PATH) as conn:
+        with get_db() as conn:
 
             cur = conn.execute(
                 """
@@ -261,7 +280,7 @@ def update_expense(
     params = list(fields.values())
     params.append(id)
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             f"""
@@ -295,7 +314,7 @@ def update_expense(
 def delete_expense(id: int):
     """Delete an expense by ID."""
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             """
@@ -335,7 +354,7 @@ def list_expenses(
     Both dates are inclusive.
     """
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             """
@@ -413,7 +432,7 @@ def summarize(
         ORDER BY total_amount DESC
     """
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             query,
@@ -476,7 +495,7 @@ def summarize_by_subcategory(
         ORDER BY total_amount DESC
     """
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_db() as conn:
 
         cur = conn.execute(
             query,
